@@ -1,0 +1,9 @@
+node_modules
+scripts/**/*
+
+# Ignore the build directory
+.next/**/*
+.vercel/**/*
+.github/**/*
+.husky/**/*
+.vscode/**/*
