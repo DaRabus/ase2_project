@@ -78,3 +78,5 @@ Ja sehr viele:
 Pages eingebaut für die Details sondern ein Modal, da ich keine Zeit verlieren wollte mit dem "umgehen" der API. Wenn dies einfach möglich gewesen wäre z.B mit dem Identifier au dem Objekt
 hätte ich dies natürlich gemacht.
 - Pagination für die Einzelnen Kategorien, da es sehr viele Einträge gibt, da die API aber keine Pagination anbietet habe ich dies auch weg gelassen, Pagination sollte normalerweise vom Backend aus kommen.
+
+## Test
