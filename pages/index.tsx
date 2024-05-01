@@ -3,8 +3,10 @@ import {
   Box,
   Button,
   Divider,
-  Fade, FormControl,
-  IconButton, InputLabel,
+  Fade,
+  FormControl,
+  IconButton,
+  InputLabel,
   Link as MuiLink,
   MenuItem,
   Modal,
@@ -209,6 +211,7 @@ const Home: NextPage = () => {
 
   return (
     <>
+      <title>Test App for E2E Tests for ASE2</title>
       <Modal
         disableAutoFocus
         disableEnforceFocus
@@ -302,51 +305,58 @@ const Home: NextPage = () => {
         <Typography variant="h1" mb={4}>
           Welcome to our E2E App
         </Typography>
-        <Box display={'flex'} alignItems={"center"} gap={2}>
+        <Box display={'flex'} alignItems={'center'} gap={2}>
           <Divider sx={{ m: 2 }} />
           <Box display="grid" gap={2}>
-          <Typography variant="h3">
-            Your Selected Time: {format(searchTime, 'dd MMMM yyyy hh:mm')}
-          </Typography>
-          <DateTimePicker
-            value={searchTime}
-            onChange={(newValue) => {
-              setSearchTime(newValue as Date);
-            }}
-            label="Select Time"
-            slotProps={{
-              textField: {
-                helperText: 'Select your time'
-              }
-            }}
-            sx={{
-              width: '100%'
-            }}
-          />
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={() => fetchAndFilterDataByDate(searchTime)}
-          >
-            Show only Open Stores at the Selected Time
-          </Button>
+            <Typography variant="h3">
+              Your Selected Time: {format(searchTime, 'dd MMMM yyyy hh:mm')}
+            </Typography>
+            <DateTimePicker
+              value={searchTime}
+              onChange={(newValue) => {
+                setSearchTime(newValue as Date);
+              }}
+              label="Select Time"
+              slotProps={{
+                textField: {
+                  helperText: 'Select your time'
+                }
+              }}
+              sx={{
+                width: '100%'
+              }}
+            />
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => fetchAndFilterDataByDate(searchTime)}
+            >
+              Show only Open Stores at the Selected Time
+            </Button>
           </Box>
           <Box display="grid" gap={2}>
-            <Typography variant="h3">
-              Configurations
-            </Typography>
+            <Typography variant="h3">Configurations</Typography>
             <FormControl fullWidth>
-              <InputLabel id="page-size-select">Select the Page Size</InputLabel>
+              <InputLabel id="page-size-select">
+                Select the Page Size
+              </InputLabel>
               <Select
-                  sx={{ width: '200px' }}
-                  value={pageSize}
-                  onChange={(event) => {
-                    setPageSize(event.target.value as number);
-                  }}
+                sx={{ width: '200px' }}
+                value={pageSize}
+                onChange={(event) => {
+                  setPageSize(event.target.value as number);
+                }}
+                data-testid="page-size-select"
               >
-                <MenuItem value={3}>3</MenuItem>
-                <MenuItem value={5}>5</MenuItem>
-                <MenuItem value={10}>10</MenuItem>
+                <MenuItem value={3} data-testid={'page-size-3'}>
+                  3
+                </MenuItem>
+                <MenuItem value={5} data-testid={'page-size-5'}>
+                  5
+                </MenuItem>
+                <MenuItem value={10} data-testid={'page-size-10'}>
+                  10
+                </MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -406,6 +416,11 @@ const Home: NextPage = () => {
                           [categoryID]: !prev[categoryID]
                         }));
                       }}
+                      data-testid={
+                        expandedCategories[categoryID]
+                          ? `collapse-button-${categoryID}`
+                          : `expand-button-${categoryID}`
+                      }
                     >
                       <Icon
                         width={30}
@@ -431,6 +446,7 @@ const Home: NextPage = () => {
                   .map((element: CommonAttributes, index: number) => {
                     return (
                       <Box
+                        aria-label={`store-element`}
                         key={index}
                         padding={2}
                         width="100%"
@@ -499,6 +515,7 @@ const Home: NextPage = () => {
                         [categoryID]: value
                       }));
                     }}
+                    data-testid={`pagination-${categoryID}`}
                     variant="outlined"
                     shape="rounded"
                     size="small"
@@ -578,6 +595,7 @@ const Home: NextPage = () => {
                           display="flex"
                           flexDirection="column"
                           justifyContent="center"
+                          data-testid={`closed-store-${index}`}
                           onClick={() => {
                             setModalDetailsData({
                               name: element.name.de,

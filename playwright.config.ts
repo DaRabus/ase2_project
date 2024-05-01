@@ -47,15 +47,6 @@ export default defineConfig({
         navigationTimeout: 40 * 1000},
     },
     {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'],
-        screenshot: 'only-on-failure',
-        trace: 'retain-on-failure',
-        actionTimeout: 25 * 1000,
-        navigationTimeout: 40 * 1000},
-    },
-
-    {
       name: 'webkit',
       use: { ...devices['Desktop Safari'],
         screenshot: 'only-on-failure',
