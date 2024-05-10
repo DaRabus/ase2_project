@@ -312,7 +312,7 @@ const Home: NextPage = () => {
           <Divider sx={{ m: 2 }} />
           <Box display="grid" gap={2}>
             <Typography variant="h3">
-              {currentLanguage.your_selected_time}: {format(searchTime, 'dd MMMM yyyy hh:mm')}
+              {currentLanguage.your_selected_time}: {format(searchTime, 'dd.MM.yyyy hh:mm')}
             </Typography>
             <DateTimePicker
               value={searchTime}
@@ -374,7 +374,7 @@ const Home: NextPage = () => {
                   data-testid="language-select"
               >
                 {languages.map(lang => (
-                    <MenuItem value={lang.languageShortName} data-testid={'languages-' + lang.languageShortName + '-10'}>
+                    <MenuItem key={lang.languageShortName} value={lang.languageShortName} data-testid={'languages-' + lang.languageShortName + '-10'}>
                       {lang.languageName}
                     </MenuItem>
                 ))}
