@@ -374,7 +374,7 @@ const Home: NextPage = () => {
                   data-testid="language-select"
               >
                 {languages.map(lang => (
-                    <MenuItem key={lang.languageShortName} value={lang.languageShortName} data-testid={'languages-' + lang.languageShortName + '-10'}>
+                    <MenuItem key={lang.languageShortName} value={lang.languageShortName} data-testid={'language-' + lang.languageShortName}>
                       {lang.languageName}
                     </MenuItem>
                 ))}

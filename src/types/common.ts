@@ -111,4 +111,4 @@ export interface Language {
     162: string
   }
 }
-export const languages = [languageGerman, languageEnglish, languageFrench, languageItalian]
+export const languages = [languageEnglish, languageGerman, languageFrench, languageItalian]
