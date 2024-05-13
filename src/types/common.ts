@@ -42,7 +42,8 @@ export interface CommonAttributes {
   specialOpeningHoursSpecification: SpecialOpeningHoursSpecification | null;
   address: Address;
   geoCoordinates: GeoCoordinates;
-  place: any[]; // Define more specifically if possible
+  place: any[]; // Define more specifically if possible;
+  isFavourite?: boolean;
 }
 
 

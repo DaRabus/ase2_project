@@ -32,6 +32,7 @@ import { clsx } from 'clsx';
 import {
   CommonAttributes,
   DaysOfWeek, Language, languages,
+  LocalizedText,
   ModalDetailsData
 } from '../src/types/common';
 import Image from 'next/image';
@@ -90,6 +91,8 @@ const Home: NextPage = () => {
 
   const [currentLanguage, setCurrentLanguage] = useState<Language>(languages[0])
 
+  const [favorites, setFavorites] = useState<string[]>([])
+
   // Handler to update the languages when the user changes the selection
   const handleLanguageChange = (event: SelectChangeEvent<"fr" | "de" | "en" | "it">) => {
     const selectedShortName = event.target.value as Language['languageShortName'];
@@ -101,20 +104,38 @@ const Home: NextPage = () => {
     }
   }
 
-  const addFavorite = (key : string) : void => {
-    console.log("add")
-    if(modalDetailsData){
-      localStorage.setItem(key, "true")
+  const isFavourite = (name : string) : boolean => {
+    for (let index = 0; index < favorites.length; index++) {
+      console.log(favorites[index], name)
+      if(favorites[index] == name) return true
     }
+    return false
   }
 
-  const removeFavorite = (key : string) : void => {
-    console.log("remove")
+  const addFavorite = (key : string | undefined) : void => {
+    if(key == undefined) return
 
-    if(modalDetailsData){
-      localStorage.setItem(key, "false")
-      localStorage.removeItem(key)
+    localStorage.setItem(key, "true")
+    setFavorites([...favorites, key])
+    console.log("add: ", favorites)
+  }
+
+  const removeFavorite = (key : string | undefined) : void => {
+    if(key == undefined) return
+
+    console.log("remove")
+    console.log(currentLanguage)
+    localStorage.setItem(key, "false")
+    localStorage.removeItem(key)
+
+    const index = favorites.indexOf(key, 0);
+    if (index > -1) {
+      let temp : string[] = favorites
+      temp.splice(index, 1);
+      console.log(temp)
+      setFavorites(temp)
     }
+    console.log(favorites)
   }
 
   const checkOpen = (openingHours: string[], currentDate: Date) => {
@@ -488,9 +509,15 @@ const Home: NextPage = () => {
                     return (
                       <>
 
-                      { localStorage.getItem(element.name.toString()) != null ? 
+                      <Typography>{favorites}</Typography>
+
+                      { !isFavourite(element.name.en!) ? 
                           <IconButton
-                          onClick={addFavorite(element.name.toString())}
+                          onClick={() => {
+                            addFavorite(element.name.en);
+                            element.isFavourite = true
+
+                          }}
                         >
                           <Icon
                             width={30}
@@ -501,7 +528,9 @@ const Home: NextPage = () => {
                         </IconButton> 
                         :
                           <IconButton
-                          onClick={removeFavorite(element.name.toString())}
+                          onClick={() => {removeFavorite(element.name.en)
+                            element.isFavourite = false
+                          }}
                         >
                           <Icon
                             width={30}
