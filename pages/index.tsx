@@ -98,6 +98,22 @@ const Home: NextPage = () => {
   const [pageSize, setPageSize] = useState(3);
   const [totalPages, setTotalPages] = useState(1);
 
+  const addFavorite = (key : string) : void => {
+    console.log("add")
+    if(modalDetailsData){
+      localStorage.setItem(key, "true")
+    }
+  }
+
+  const removeFavorite = (key : string) : void => {
+    console.log("remove")
+
+    if(modalDetailsData){
+      localStorage.setItem(key, "false")
+      localStorage.removeItem(key)
+    }
+  }
+
   const checkOpen = (openingHours: string[], currentDate: Date) => {
     const currentDayIndex = getDay(currentDate);
 
@@ -253,6 +269,7 @@ const Home: NextPage = () => {
                 {modalDetailsData?.address?.addressLocality}{' '}
                 {modalDetailsData?.address?.addressCountry}
               </Typography>
+
               <Typography
                 variant="h6"
                 textAlign="center"
@@ -389,6 +406,7 @@ const Home: NextPage = () => {
                       {categoryData[categoryID].length} Open Stores
                     </Typography>
                   )}
+
                   {categoryData[categoryID] && !onlyShowOpen && (
                     <Typography color="success" variant="h4">
                       {categoryData[categoryID].length} Stores
@@ -445,6 +463,33 @@ const Home: NextPage = () => {
                   )
                   .map((element: CommonAttributes, index: number) => {
                     return (
+                      <>
+
+                      { localStorage.getItem(element.name.toString()) != null ? 
+                          <IconButton
+                          onClick={addFavorite(element.name.toString())}
+                        >
+                          <Icon
+                            width={30}
+                            height={30}
+                            color={theme.palette.text.secondary}
+                            icon={"ph:heart-light"}
+                          />
+                        </IconButton> 
+                        :
+                          <IconButton
+                          onClick={removeFavorite(element.name.toString())}
+                        >
+                          <Icon
+                            width={30}
+                            height={30}
+                            color={theme.palette.text.secondary}
+                            icon={"ph:heart-fill"}
+                          />
+                        </IconButton> 
+                        }
+
+
                       <Box
                         aria-label={`store-element`}
                         key={index}
@@ -467,6 +512,7 @@ const Home: NextPage = () => {
                         <Typography textAlign="center" mb={2} variant="h4">
                           {element.name.de}
                         </Typography>
+                                                          
                         <Box display="flex">
                           <Image
                             src={element?.image?.url ?? ''}
@@ -500,6 +546,7 @@ const Home: NextPage = () => {
                           <Divider sx={{ m: 2 }} />
                         )}
                       </Box>
+                      </>
                     );
                   })}
               {expandedCategories[categoryID] && (
