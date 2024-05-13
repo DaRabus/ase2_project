@@ -1,3 +1,8 @@
+import {languageGerman} from "../languages/de";
+import {languageEnglish} from "../languages/en";
+import {languageFrench} from "../languages/fr";
+import {languageItalian} from "../languages/it";
+
 export type DaysOfWeek = { [key: string]: number };
 
 
@@ -80,3 +85,30 @@ export interface OpeningHoursSpecification {
 export interface SpecialOpeningHoursSpecification {
   // Same as above or as needed
 }
+
+export interface Language {
+  languageShortName: 'de' | 'en' | 'fr' | 'it';
+  languageName: string;
+  title: string
+  your_selected_time: string
+  selected_time: string
+  configurations: string
+  show_only_open_stores_at_the_selected_time: string
+  language: string
+  select_the_language: string
+  select_the_page_size: string
+  stores: string
+  expand: string
+  collapse: string
+  opening_hours: string
+  closed_stores: string
+  open_stores: string
+  name_to_category: {
+    103: string
+    101: string
+    96: string
+    136: string
+    162: string
+  }
+}
+export const languages = [languageEnglish, languageGerman, languageFrench, languageItalian]
