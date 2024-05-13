@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-const NameToCategory: {
+const NameToCategoryEnglish: {
   [key: number]: string;
 } = {
   103: 'Bars and lounges in the Zurich region',
@@ -10,6 +10,16 @@ const NameToCategory: {
   162: 'Nightlife: clubs in Zurich'
 };
 
+const NameToCategoryGerman: {
+  [key: number]: string
+} = {
+  103: 'Bars und Lounges in der Region Zürich',
+  101: 'Essen gehen in Zürich',
+  96: 'Kultur in der Region Zürich',
+  136: 'Museen in der Region Zürich',
+  162: 'Nachtleben: Clubs in Zürich'
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto('http://localhost:3000');
 
@@ -17,19 +27,30 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('Check if all 5 categories are loaded', async ({ page }) => {
-  for (const key of Object.keys(NameToCategory)) {
+  for (const key of Object.keys(NameToCategoryEnglish)) {
     await expect(page.getByTestId(`expand-button-${key}`)).toBeVisible();
   }
 
-  for (const value of Object.values(NameToCategory)) {
+  for (const value of Object.values(NameToCategoryEnglish)) {
     await expect(page.locator(`text=${value}`)).toBeVisible();
   }
 });
 
+test('Check if all 5 category names are updated after language switch', async ({page}) => {
+  // Switch language selector
+  await page.getByTestId(`language-select`).click();
+  await page.getByTestId(`language-de`).click();
+
+  for (const value of Object.values(NameToCategoryGerman)) {
+    await expect(page.locator(`text=${value}`)).toBeVisible();
+  }
+
+})
+
 test('Check if categories is opening and if it shows the amount of elements configured also on page switch', async ({
   page
 }) => {
-  const firstElement = Object.keys(NameToCategory)[0];
+  const firstElement = Object.keys(NameToCategoryEnglish)[0];
 
   console.log('firstElement', firstElement);
 

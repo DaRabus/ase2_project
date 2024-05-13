@@ -11,11 +11,11 @@ import {
   MenuItem,
   Modal,
   Pagination,
-  Select,
+  Select, SelectChangeEvent,
   Tooltip,
   Typography
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect, useState} from 'react';
 import { Icon } from '@iconify/react';
 import { useTheme } from '@mui/system';
 import ReactMarkdown from 'react-markdown';
@@ -31,7 +31,7 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import { clsx } from 'clsx';
 import {
   CommonAttributes,
-  DaysOfWeek,
+  DaysOfWeek, Language, languages,
   ModalDetailsData
 } from '../src/types/common';
 import Image from 'next/image';
@@ -43,16 +43,6 @@ import Image from 'next/image';
 /// 162 - Nightlife: clubs in Zurich
 
 const CATEGORIESTODISPLAY = ['103', '101', '96', '136', '162'];
-
-const NameToCategory: {
-  [key: number]: string;
-} = {
-  103: 'Bars and lounges in the Zurich region',
-  101: 'Eating out in Zurich',
-  96: 'Culture in the Zurich region',
-  136: 'Museums in the Zurich region',
-  162: 'Nightlife: clubs in Zurich'
-};
 
 const daysOfWeekMap: DaysOfWeek = {
   Su: 0,
@@ -97,6 +87,19 @@ const Home: NextPage = () => {
   }>({});
   const [pageSize, setPageSize] = useState(3);
   const [totalPages, setTotalPages] = useState(1);
+
+  const [currentLanguage, setCurrentLanguage] = useState<Language>(languages[0])
+
+  // Handler to update the languages when the user changes the selection
+  const handleLanguageChange = (event: SelectChangeEvent<"fr" | "de" | "en" | "it">) => {
+    const selectedShortName = event.target.value as Language['languageShortName'];
+    const selectedLanguage = languages.find(lang => lang.languageShortName === selectedShortName);
+
+    // Ensure the selected languages is found before updating the state
+    if (selectedLanguage) {
+      setCurrentLanguage(selectedLanguage);
+    }
+  }
 
   const addFavorite = (key : string) : void => {
     console.log("add")
@@ -227,7 +230,7 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <title>Test App for E2E Tests for ASE2</title>
+      <title>{currentLanguage.title}</title>
       <Modal
         disableAutoFocus
         disableEnforceFocus
@@ -280,7 +283,7 @@ const Home: NextPage = () => {
                 }
                 m={2}
               >
-                Opening Hours: {modalDetailsData?.openingHours.toString()}
+                {currentLanguage.opening_hours}: {modalDetailsData?.openingHours.toString()}
               </Typography>
 
               <img
@@ -320,13 +323,13 @@ const Home: NextPage = () => {
         justifyContent="center"
       >
         <Typography variant="h1" mb={4}>
-          Welcome to our E2E App
+          {currentLanguage.title}
         </Typography>
         <Box display={'flex'} alignItems={'center'} gap={2}>
           <Divider sx={{ m: 2 }} />
           <Box display="grid" gap={2}>
             <Typography variant="h3">
-              Your Selected Time: {format(searchTime, 'dd MMMM yyyy hh:mm')}
+              {currentLanguage.your_selected_time}: {format(searchTime, 'dd.MM.yyyy hh:mm')}
             </Typography>
             <DateTimePicker
               value={searchTime}
@@ -348,22 +351,22 @@ const Home: NextPage = () => {
               color="secondary"
               onClick={() => fetchAndFilterDataByDate(searchTime)}
             >
-              Show only Open Stores at the Selected Time
+              {currentLanguage.show_only_open_stores_at_the_selected_time}
             </Button>
           </Box>
           <Box display="grid" gap={2}>
-            <Typography variant="h3">Configurations</Typography>
+            <Typography variant="h3">{currentLanguage.configurations}</Typography>
             <FormControl fullWidth>
               <InputLabel id="page-size-select">
-                Select the Page Size
+                {currentLanguage.select_the_page_size}
               </InputLabel>
               <Select
-                sx={{ width: '200px' }}
-                value={pageSize}
-                onChange={(event) => {
-                  setPageSize(event.target.value as number);
-                }}
-                data-testid="page-size-select"
+                  sx={{ width: '200px' }}
+                  value={pageSize}
+                  onChange={(event) => {
+                    setPageSize(event.target.value as number);
+                  }}
+                  data-testid="page-size-select"
               >
                 <MenuItem value={3} data-testid={'page-size-3'}>
                   3
@@ -374,6 +377,24 @@ const Home: NextPage = () => {
                 <MenuItem value={10} data-testid={'page-size-10'}>
                   10
                 </MenuItem>
+              </Select>
+            </FormControl>
+            <Typography variant="h3">{currentLanguage.language}</Typography>
+            <FormControl fullWidth>
+              <InputLabel id="page-size-select">
+                {currentLanguage.select_the_language}
+              </InputLabel>
+              <Select
+                  sx={{ width: '200px' }}
+                  value={currentLanguage.languageShortName}
+                  onChange={(event) => {handleLanguageChange(event as SelectChangeEvent<"fr" | "de" | "en" | "it">)}}
+                  data-testid="language-select"
+              >
+                {languages.map(lang => (
+                    <MenuItem key={lang.languageShortName} value={lang.languageShortName} data-testid={'language-' + lang.languageShortName}>
+                      {lang.languageName}
+                    </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Box>
@@ -398,23 +419,25 @@ const Home: NextPage = () => {
                 alignItems="center"
               >
                 <Typography color="primary" variant="h2">
-                  {NameToCategory[parseInt(categoryID)]}
+                  { // @ts-expect-error not able to check if category is in name_to_category
+                    currentLanguage.name_to_category[parseInt(categoryID)]
+                  }
                 </Typography>
                 <Box display="flex" alignItems="center" gap={4}>
                   {categoryData[categoryID] && onlyShowOpen && (
                     <Typography color="success" variant="h4">
-                      {categoryData[categoryID].length} Open Stores
+                      {categoryData[categoryID].length} {currentLanguage.open_stores}
                     </Typography>
                   )}
 
                   {categoryData[categoryID] && !onlyShowOpen && (
                     <Typography color="success" variant="h4">
-                      {categoryData[categoryID].length} Stores
+                      {categoryData[categoryID].length} {currentLanguage.stores}
                     </Typography>
                   )}
                   <Tooltip
                     title={
-                      expandedCategories[categoryID] ? 'Collapse' : 'Expand'
+                      expandedCategories[categoryID] ? currentLanguage.collapse : currentLanguage.expand
                     }
                     placement={'top'}
                   >
@@ -500,8 +523,8 @@ const Home: NextPage = () => {
                         justifyContent="center"
                         onClick={() => {
                           setModalDetailsData({
-                            name: element.name.de || '',
-                            description: element.description.de || '',
+                            name: element.name[currentLanguage.languageShortName] || '',
+                            description: element.description[currentLanguage.languageShortName] || '',
                             image: element?.image?.url || '',
                             address: element.address,
                             openingHours: element.openingHours
@@ -510,13 +533,13 @@ const Home: NextPage = () => {
                         }}
                       >
                         <Typography textAlign="center" mb={2} variant="h4">
-                          {element.name.de}
+                          {element.name[currentLanguage.languageShortName]}
                         </Typography>
                                                           
                         <Box display="flex">
                           <Image
                             src={element?.image?.url ?? ''}
-                            alt={element.name.de ?? 'Image Alt'}
+                            alt={element.name[currentLanguage.languageShortName] ?? 'Image Alt'}
                             width={250}
                             height={250}
                           />
@@ -538,7 +561,7 @@ const Home: NextPage = () => {
                                 )
                               }}
                             >
-                              {element.description.de}
+                              {element.description[currentLanguage.languageShortName]}
                             </ReactMarkdown>
                           </Box>
                         </Box>
@@ -575,7 +598,7 @@ const Home: NextPage = () => {
         {onlyShowOpen && (
           <Box width="100%">
             <Typography variant="h3" mt={4} mb={4}>
-              Closed Stores
+              {currentLanguage.closed_stores}
             </Typography>
             {CATEGORIESTODISPLAY.map((categoryID) => {
               return (
@@ -595,12 +618,13 @@ const Home: NextPage = () => {
                     alignItems="center"
                   >
                     <Typography color="primary" variant="h2">
-                      {NameToCategory[parseInt(categoryID)]}
-                    </Typography>
+                      { // @ts-expect-error not able to check if category is in name_to_category
+                        currentLanguage.name_to_category[parseInt(categoryID)]
+                      }                    </Typography>
                     <Box display="flex" alignItems="center" gap={4}>
                       {closedObjectData[categoryID] && (
                         <Typography color="success" variant="h4">
-                          {closedObjectData[categoryID].length} Closed Stores
+                          {closedObjectData[categoryID].length} {currentLanguage.closed_stores}
                         </Typography>
                       )}
                       <Tooltip
@@ -645,8 +669,8 @@ const Home: NextPage = () => {
                           data-testid={`closed-store-${index}`}
                           onClick={() => {
                             setModalDetailsData({
-                              name: element.name.de,
-                              description: element.description.de,
+                              name: element.name[currentLanguage.languageShortName],
+                              description: element.description[currentLanguage.languageShortName],
                               image: element.image.url,
                               address: element.address,
                               openingHours: element.openingHours
@@ -655,12 +679,12 @@ const Home: NextPage = () => {
                           }}
                         >
                           <Typography textAlign="center" mb={2} variant="h4">
-                            {element.name.de}
+                            {element.name[currentLanguage.languageShortName]}
                           </Typography>
                           <Box display="flex">
                             <img
                               src={element.image.url}
-                              alt={element.name.de}
+                              alt={element.name[currentLanguage.languageShortName]}
                               style={{ width: '250px', height: '250px' }}
                             />
                             <Divider sx={{ m: 2 }} />
@@ -681,7 +705,7 @@ const Home: NextPage = () => {
                                   )
                                 }}
                               >
-                                {element.description.de}
+                                {element.description[currentLanguage.languageShortName]}
                               </ReactMarkdown>
                             </Box>
                           </Box>
