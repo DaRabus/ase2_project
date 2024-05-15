@@ -24,6 +24,7 @@ import rehypeRaw from 'rehype-raw';
 import {
   format,
   getDay,
+  getTime,
   isWithinInterval,
   setHours,
   setMinutes
@@ -119,21 +120,15 @@ const Home: NextPage = () => {
 
   const addFavorite = (key: string | undefined): void => {
     if (key == undefined) return;
-
-    localStorage.setItem(key, 'true');
     setFavorites((prevFavorites) => [...prevFavorites, key]);
-    console.log('add: ', favorites);
+    localStorage.setItem("favorites", favorites.toString());
   };
 
   const removeFavorite = (key: string | undefined): void => {
     if (key == undefined) return;
-
-    console.log('remove');
-    localStorage.setItem(key, 'false');
-    localStorage.removeItem(key);
-
     setFavorites((prevFavorites) => prevFavorites.filter((fav) => fav !== key));
-    console.log(favorites);
+    localStorage.setItem("favorites", favorites.toString());
+    
   };
 
   const checkOpen = (openingHours: string[], currentDate: Date) => {
@@ -245,6 +240,10 @@ const Home: NextPage = () => {
     if (!initalLoadingDone) {
       fetchAllCategories();
     }
+
+    let fav : string | null = localStorage.getItem("favorites")
+    if( fav === null) return
+    setFavorites(fav.split(','))
   }, []);
 
   return (
@@ -522,8 +521,6 @@ const Home: NextPage = () => {
                   .map((element: CommonAttributes, index: number) => {
                     return (
                       <>
-                        <Typography>{favorites}</Typography>
-
                         {!isFavourite(element.name.en!) ? (
                           <IconButton
                             onClick={() => {
