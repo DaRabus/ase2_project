@@ -84,3 +84,25 @@ test('Check if categories is opening and if it shows the amount of elements conf
       expect(count).toBe(5);
     });
 });
+
+test('Check if category items are added to favorites and saved to local storage', async ({ page }) => {
+  const firstElement = Object.keys(NameToCategoryEnglish)[0];
+  
+  await page.getByTestId(`expand-button-${firstElement}`).click();
+  
+  await page.locator('text="ph:heart-light"').first().click();
+  
+  await expect(page.locator('text="ph:heart-fill"').first()).toBeVisible();
+  
+  await page.reload();
+  await expect(page.locator('text="ph:heart-fill"').first()).toBeVisible();
+  
+  const favorites = await page.evaluate(() => {
+    return JSON.parse(localStorage.getItem('favorites'));
+  });
+  
+  expect(favorites).toContainEqual(expect.objectContaining({
+    id: expect.any(String)
+  }));
+});
+
