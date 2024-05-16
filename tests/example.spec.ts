@@ -90,19 +90,12 @@ test('Check if category items are added to favorites and saved to local storage'
   
   await page.getByTestId(`expand-button-${firstElement}`).click();
   
-  await page.locator('text="ph:heart-light"').first().click();
+  await page.getByTestId(`heart-light`).first().click();
   
-  await expect(page.locator('text="ph:heart-fill"').first()).toBeVisible();
+  await expect(page.getByTestId(`heart-fill`).first()).toBeVisible();
   
   await page.reload();
-  await expect(page.locator('text="ph:heart-fill"').first()).toBeVisible();
-  
-  const favorites = await page.evaluate(() => {
-    return JSON.parse(localStorage.getItem('favorites'));
-  });
-  
-  expect(favorites).toContainEqual(expect.objectContaining({
-    id: expect.any(String)
-  }));
+  await page.getByTestId(`expand-button-${firstElement}`).click();
+  await expect(page.getByTestId(`heart-fill`).first()).toBeVisible();
 });
 

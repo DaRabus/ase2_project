@@ -532,6 +532,7 @@ const Home: NextPage = () => {
                               width={30}
                               height={30}
                               color={theme.palette.text.secondary}
+                              data-testid={`heart-light`}
                               icon={'ph:heart-light'}
                             />
                           </IconButton>
@@ -546,6 +547,7 @@ const Home: NextPage = () => {
                               width={30}
                               height={30}
                               color={theme.palette.text.secondary}
+                              data-testid={`heart-fill`}
                               icon={'ph:heart-fill'}
                             />
                           </IconButton>
