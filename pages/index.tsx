@@ -120,15 +120,21 @@ const Home: NextPage = () => {
 
   const addFavorite = (key: string | undefined): void => {
     if (key == undefined) return;
-    setFavorites((prevFavorites) => [...prevFavorites, key]);
-    localStorage.setItem("favorites", favorites.toString());
+    setFavorites((prevFavorites) => {
+      localStorage.setItem("favorites", [...prevFavorites, key].toString());
+      return [...prevFavorites, key]
+    });
+    console.log("adding to Favorites: " + favorites.toString())
+
   };
 
   const removeFavorite = (key: string | undefined): void => {
     if (key == undefined) return;
-    setFavorites((prevFavorites) => prevFavorites.filter((fav) => fav !== key));
-    localStorage.setItem("favorites", favorites.toString());
-    
+    setFavorites((prevFavorites) => {
+      localStorage.setItem("favorites", prevFavorites.filter((fav) => fav !== key).toString());
+      return prevFavorites.filter((fav) => fav !== key);
+    })
+    console.log("removing from Favorites: " + favorites.toString())
   };
 
   const checkOpen = (openingHours: string[], currentDate: Date) => {
