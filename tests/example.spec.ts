@@ -85,17 +85,37 @@ test('Check if categories is opening and if it shows the amount of elements conf
     });
 });
 
-test('Check if category items are added to favorites and saved to local storage', async ({ page }) => {
+test('Check if category items are added to favorites and still there after reload', async ({ page }) => {
+
   const firstElement = Object.keys(NameToCategoryEnglish)[0];
   
   await page.getByTestId(`expand-button-${firstElement}`).click();
-  
   await page.getByTestId(`heart-light`).first().click();
-  
+
   await expect(page.getByTestId(`heart-fill`).first()).toBeVisible();
   
   await page.reload();
   await page.getByTestId(`expand-button-${firstElement}`).click();
+
   await expect(page.getByTestId(`heart-fill`).first()).toBeVisible();
+
+  await page.getByTestId(`heart-fill`).first().click();
+});
+
+test('Check if category items are removed from favorites and still removed after reload', async ({ page }) => {
+
+  const firstElement = Object.keys(NameToCategoryEnglish)[0];
+
+  
+  await page.getByTestId(`expand-button-${firstElement}`).click();
+
+  await page.getByTestId(`heart-light`).first().click();
+  await page.getByTestId(`heart-fill`).first().click();
+  
+  await expect(page.getByTestId(`heart-light`).first()).toBeVisible();
+  
+  await page.reload();
+  await page.getByTestId(`expand-button-${firstElement}`).click();
+  await expect(page.getByTestId(`heart-light`).first()).toBeVisible();
 });
 
