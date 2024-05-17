@@ -11,11 +11,12 @@ import {
   MenuItem,
   Modal,
   Pagination,
-  Select, SelectChangeEvent,
+  Select,
+  SelectChangeEvent,
   Tooltip,
   Typography
 } from '@mui/material';
-import { useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { Icon } from '@iconify/react';
 import { useTheme } from '@mui/system';
 import ReactMarkdown from 'react-markdown';
@@ -23,6 +24,7 @@ import rehypeRaw from 'rehype-raw';
 import {
   format,
   getDay,
+  getTime,
   isWithinInterval,
   setHours,
   setMinutes
@@ -31,7 +33,9 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import { clsx } from 'clsx';
 import {
   CommonAttributes,
-  DaysOfWeek, Language, languages,
+  DaysOfWeek,
+  Language,
+  languages,
   ModalDetailsData
 } from '../src/types/common';
 import Image from 'next/image';
@@ -88,18 +92,50 @@ const Home: NextPage = () => {
   const [pageSize, setPageSize] = useState(3);
   const [totalPages, setTotalPages] = useState(1);
 
-  const [currentLanguage, setCurrentLanguage] = useState<Language>(languages[0])
+  const [currentLanguage, setCurrentLanguage] = useState<Language>(
+    languages[0]
+  );
+
+  const [favorites, setFavorites] = useState<string[]>([]);
 
   // Handler to update the languages when the user changes the selection
-  const handleLanguageChange = (event: SelectChangeEvent<"fr" | "de" | "en" | "it">) => {
-    const selectedShortName = event.target.value as Language['languageShortName'];
-    const selectedLanguage = languages.find(lang => lang.languageShortName === selectedShortName);
+  const handleLanguageChange = (
+    event: SelectChangeEvent<'fr' | 'de' | 'en' | 'it'>
+  ) => {
+    const selectedShortName = event.target
+      .value as Language['languageShortName'];
+    const selectedLanguage = languages.find(
+      (lang) => lang.languageShortName === selectedShortName
+    );
 
     // Ensure the selected languages is found before updating the state
     if (selectedLanguage) {
       setCurrentLanguage(selectedLanguage);
     }
-  }
+  };
+
+  const isFavourite = (name: string): boolean => {
+    return favorites.includes(name);
+  };
+
+  const addFavorite = (key: string | undefined): void => {
+    if (key == undefined) return;
+    setFavorites((prevFavorites) => {
+      localStorage.setItem("favorites", [...prevFavorites, key].toString());
+      return [...prevFavorites, key]
+    });
+    console.log("adding to Favorites: " + favorites.toString())
+
+  };
+
+  const removeFavorite = (key: string | undefined): void => {
+    if (key == undefined) return;
+    setFavorites((prevFavorites) => {
+      localStorage.setItem("favorites", prevFavorites.filter((fav) => fav !== key).toString());
+      return prevFavorites.filter((fav) => fav !== key);
+    })
+    console.log("removing from Favorites: " + favorites.toString())
+  };
 
   const checkOpen = (openingHours: string[], currentDate: Date) => {
     const currentDayIndex = getDay(currentDate);
@@ -210,6 +246,10 @@ const Home: NextPage = () => {
     if (!initalLoadingDone) {
       fetchAllCategories();
     }
+
+    let fav : string | null = localStorage.getItem("favorites")
+    if( fav === null) return
+    setFavorites(fav.split(','))
   }, []);
 
   return (
@@ -256,6 +296,7 @@ const Home: NextPage = () => {
                 {modalDetailsData?.address?.addressLocality}{' '}
                 {modalDetailsData?.address?.addressCountry}
               </Typography>
+
               <Typography
                 variant="h6"
                 textAlign="center"
@@ -266,7 +307,8 @@ const Home: NextPage = () => {
                 }
                 m={2}
               >
-                {currentLanguage.opening_hours}: {modalDetailsData?.openingHours.toString()}
+                {currentLanguage.opening_hours}:{' '}
+                {modalDetailsData?.openingHours.toString()}
               </Typography>
 
               <img
@@ -312,7 +354,8 @@ const Home: NextPage = () => {
           <Divider sx={{ m: 2 }} />
           <Box display="grid" gap={2}>
             <Typography variant="h3">
-              {currentLanguage.your_selected_time}: {format(searchTime, 'dd.MM.yyyy hh:mm')}
+              {currentLanguage.your_selected_time}:{' '}
+              {format(searchTime, 'dd.MM.yyyy hh:mm')}
             </Typography>
             <DateTimePicker
               value={searchTime}
@@ -338,18 +381,20 @@ const Home: NextPage = () => {
             </Button>
           </Box>
           <Box display="grid" gap={2}>
-            <Typography variant="h3">{currentLanguage.configurations}</Typography>
+            <Typography variant="h3">
+              {currentLanguage.configurations}
+            </Typography>
             <FormControl fullWidth>
               <InputLabel id="page-size-select">
                 {currentLanguage.select_the_page_size}
               </InputLabel>
               <Select
-                  sx={{ width: '200px' }}
-                  value={pageSize}
-                  onChange={(event) => {
-                    setPageSize(event.target.value as number);
-                  }}
-                  data-testid="page-size-select"
+                sx={{ width: '200px' }}
+                value={pageSize}
+                onChange={(event) => {
+                  setPageSize(event.target.value as number);
+                }}
+                data-testid="page-size-select"
               >
                 <MenuItem value={3} data-testid={'page-size-3'}>
                   3
@@ -368,15 +413,23 @@ const Home: NextPage = () => {
                 {currentLanguage.select_the_language}
               </InputLabel>
               <Select
-                  sx={{ width: '200px' }}
-                  value={currentLanguage.languageShortName}
-                  onChange={(event) => {handleLanguageChange(event as SelectChangeEvent<"fr" | "de" | "en" | "it">)}}
-                  data-testid="language-select"
+                sx={{ width: '200px' }}
+                value={currentLanguage.languageShortName}
+                onChange={(event) => {
+                  handleLanguageChange(
+                    event as SelectChangeEvent<'fr' | 'de' | 'en' | 'it'>
+                  );
+                }}
+                data-testid="language-select"
               >
-                {languages.map(lang => (
-                    <MenuItem key={lang.languageShortName} value={lang.languageShortName} data-testid={'language-' + lang.languageShortName}>
-                      {lang.languageName}
-                    </MenuItem>
+                {languages.map((lang) => (
+                  <MenuItem
+                    key={lang.languageShortName}
+                    value={lang.languageShortName}
+                    data-testid={'language-' + lang.languageShortName}
+                  >
+                    {lang.languageName}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -402,16 +455,19 @@ const Home: NextPage = () => {
                 alignItems="center"
               >
                 <Typography color="primary" variant="h2">
-                  { // @ts-expect-error not able to check if category is in name_to_category
+                  {
+                    // @ts-expect-error not able to check if category is in name_to_category
                     currentLanguage.name_to_category[parseInt(categoryID)]
                   }
                 </Typography>
                 <Box display="flex" alignItems="center" gap={4}>
                   {categoryData[categoryID] && onlyShowOpen && (
                     <Typography color="success" variant="h4">
-                      {categoryData[categoryID].length} {currentLanguage.open_stores}
+                      {categoryData[categoryID].length}{' '}
+                      {currentLanguage.open_stores}
                     </Typography>
                   )}
+
                   {categoryData[categoryID] && !onlyShowOpen && (
                     <Typography color="success" variant="h4">
                       {categoryData[categoryID].length} {currentLanguage.stores}
@@ -419,7 +475,9 @@ const Home: NextPage = () => {
                   )}
                   <Tooltip
                     title={
-                      expandedCategories[categoryID] ? currentLanguage.collapse : currentLanguage.expand
+                      expandedCategories[categoryID]
+                        ? currentLanguage.collapse
+                        : currentLanguage.expand
                     }
                     placement={'top'}
                   >
@@ -468,61 +526,110 @@ const Home: NextPage = () => {
                   )
                   .map((element: CommonAttributes, index: number) => {
                     return (
-                      <Box
-                        aria-label={`store-element`}
-                        key={index}
-                        padding={2}
-                        width="100%"
-                        display="flex"
-                        flexDirection="column"
-                        justifyContent="center"
-                        onClick={() => {
-                          setModalDetailsData({
-                            name: element.name[currentLanguage.languageShortName] || '',
-                            description: element.description[currentLanguage.languageShortName] || '',
-                            image: element?.image?.url || '',
-                            address: element.address,
-                            openingHours: element.openingHours
-                          });
-                          setShowDetailsModal(true);
-                        }}
-                      >
-                        <Typography textAlign="center" mb={2} variant="h4">
-                          {element.name[currentLanguage.languageShortName]}
-                        </Typography>
-                        <Box display="flex">
-                          <Image
-                            src={element?.image?.url ?? ''}
-                            alt={element.name[currentLanguage.languageShortName] ?? 'Image Alt'}
-                            width={250}
-                            height={250}
-                          />
-                          <Divider sx={{ m: 2 }} />
-                          <Box display="grid">
-                            <ReactMarkdown
-                              rehypePlugins={[rehypeRaw]}
-                              components={{
-                                a: ({ ...props }) => (
-                                  <MuiLink
-                                    href={props.href}
-                                    sx={{
-                                      color: 'blue',
-                                      textDecoration: 'underline'
-                                    }}
-                                  >
-                                    {props.children}
-                                  </MuiLink>
-                                )
-                              }}
-                            >
-                              {element.description[currentLanguage.languageShortName]}
-                            </ReactMarkdown>
-                          </Box>
-                        </Box>
-                        {index !== categoryData[categoryID].length - 1 && (
-                          <Divider sx={{ m: 2 }} />
+                      <>
+                        {!isFavourite(element.name.en!) ? (
+                          <IconButton
+                            onClick={() => {
+                              addFavorite(element.name.en);
+                              element.isFavourite = true;
+                            }}
+                          >
+                            <Icon
+                              width={30}
+                              height={30}
+                              color={theme.palette.text.secondary}
+                              data-testid={`heart-light`}
+                              icon={'ph:heart-light'}
+                            />
+                          </IconButton>
+                        ) : (
+                          <IconButton
+                            onClick={() => {
+                              removeFavorite(element.name.en);
+                              element.isFavourite = false;
+                            }}
+                          >
+                            <Icon
+                              width={30}
+                              height={30}
+                              color={theme.palette.text.secondary}
+                              data-testid={`heart-fill`}
+                              icon={'ph:heart-fill'}
+                            />
+                          </IconButton>
                         )}
-                      </Box>
+
+                        <Box
+                          aria-label={`store-element`}
+                          key={index}
+                          padding={2}
+                          width="100%"
+                          display="flex"
+                          flexDirection="column"
+                          justifyContent="center"
+                          onClick={() => {
+                            setModalDetailsData({
+                              name:
+                                element.name[
+                                  currentLanguage.languageShortName
+                                ] || '',
+                              description:
+                                element.description[
+                                  currentLanguage.languageShortName
+                                ] || '',
+                              image: element?.image?.url || '',
+                              address: element.address,
+                              openingHours: element.openingHours
+                            });
+                            setShowDetailsModal(true);
+                          }}
+                        >
+                          <Typography textAlign="center" mb={2} variant="h4">
+                            {element.name[currentLanguage.languageShortName]}
+                          </Typography>
+
+                          <Box display="flex">
+                            <Image
+                              src={element?.image?.url ?? ''}
+                              alt={
+                                element.name[
+                                  currentLanguage.languageShortName
+                                ] ?? 'Image Alt'
+                              }
+                              width={250}
+                              height={250}
+                            />
+                            <Divider sx={{ m: 2 }} />
+                            <Box display="grid">
+                              <ReactMarkdown
+                                rehypePlugins={[rehypeRaw]}
+                                components={{
+                                  a: ({ ...props }) => (
+                                    <MuiLink
+                                      href={props.href}
+                                      sx={{
+                                        color: 'blue',
+                                        textDecoration: 'underline'
+                                      }}
+                                    >
+                                      {props.children}
+                                    </MuiLink>
+                                  )
+                                }}
+                              >
+                                {
+                                  element.description[
+                                    currentLanguage.languageShortName
+                                  ]
+                                }
+                              </ReactMarkdown>
+                            </Box>
+                          </Box>
+                          {index !== categoryData[categoryID].length - 1 && (
+                            <Divider sx={{ m: 2 }} />
+                          )}
+                        </Box>
+                      </>
                     );
                   })}
               {expandedCategories[categoryID] && (
@@ -571,13 +678,16 @@ const Home: NextPage = () => {
                     alignItems="center"
                   >
                     <Typography color="primary" variant="h2">
-                      { // @ts-expect-error not able to check if category is in name_to_category
+                      {
+                        // @ts-expect-error not able to check if category is in name_to_category
                         currentLanguage.name_to_category[parseInt(categoryID)]
-                      }                    </Typography>
+                      }{' '}
+                    </Typography>
                     <Box display="flex" alignItems="center" gap={4}>
                       {closedObjectData[categoryID] && (
                         <Typography color="success" variant="h4">
-                          {closedObjectData[categoryID].length} {currentLanguage.closed_stores}
+                          {closedObjectData[categoryID].length}{' '}
+                          {currentLanguage.closed_stores}
                         </Typography>
                       )}
                       <Tooltip
@@ -622,8 +732,13 @@ const Home: NextPage = () => {
                           data-testid={`closed-store-${index}`}
                           onClick={() => {
                             setModalDetailsData({
-                              name: element.name[currentLanguage.languageShortName],
-                              description: element.description[currentLanguage.languageShortName],
+                              name: element.name[
+                                currentLanguage.languageShortName
+                              ],
+                              description:
+                                element.description[
+                                  currentLanguage.languageShortName
+                                ],
                               image: element.image.url,
                               address: element.address,
                               openingHours: element.openingHours
@@ -637,7 +752,9 @@ const Home: NextPage = () => {
                           <Box display="flex">
                             <img
                               src={element.image.url}
-                              alt={element.name[currentLanguage.languageShortName]}
+                              alt={
+                                element.name[currentLanguage.languageShortName]
+                              }
                               style={{ width: '250px', height: '250px' }}
                             />
                             <Divider sx={{ m: 2 }} />
@@ -658,7 +775,11 @@ const Home: NextPage = () => {
                                   )
                                 }}
                               >
-                                {element.description[currentLanguage.languageShortName]}
+                                {
+                                  element.description[
+                                    currentLanguage.languageShortName
+                                  ]
+                                }
                               </ReactMarkdown>
                             </Box>
                           </Box>
